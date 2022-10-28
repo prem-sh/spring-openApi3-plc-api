@@ -4,26 +4,30 @@ import java.util.Date;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
 
 @Entity
 @Table(name="device_identity")
 public class DeviceIdentity {
+	@NotNull
+	@Size(min=5, max=15)
 	@Id
 	@Column(name = "plc_id")
 	private String deviceId;
 	
+	@NotNull
 	@ManyToOne
 	@JoinColumn(name = "plc_model_id", referencedColumnName = "plc_id")
 	private Plc plcModel;
 	
+	@NotNull
 	@ManyToOne
 	@JoinColumn(name = "manufacturing_unit_id", referencedColumnName = "manufacturing_unit_id")
 	private ManufacturingUnit manufacturingUnit;
@@ -33,7 +37,7 @@ public class DeviceIdentity {
 	private Date mfd;
 	
 	@Column(name = "qc", columnDefinition = "boolean default false")
-	private Boolean qualityCheck;
+	private Boolean qualityCheck = false;
 
 	public String getDeviceId() {
 		return deviceId;

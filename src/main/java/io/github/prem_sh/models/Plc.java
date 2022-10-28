@@ -6,6 +6,7 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
+import javax.validation.constraints.NotNull;
 
 @Entity
 @Table(name="plc")
@@ -15,6 +16,7 @@ public class Plc {
 	@Column(name = "plc_id")
 	private Long plcId;
 	
+	@NotNull
 	@Column(name = "model_name")
 	private String model;
 	

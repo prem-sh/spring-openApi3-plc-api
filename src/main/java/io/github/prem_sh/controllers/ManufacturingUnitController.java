@@ -18,9 +18,14 @@ import org.springframework.web.bind.annotation.RestController;
 
 import io.github.prem_sh.models.ManufacturingUnit;
 import io.github.prem_sh.repository.ManufacturingUnitRepository;
+import io.swagger.v3.oas.annotations.Hidden;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.tags.Tag;
 
 @RestController
 @RequestMapping("/mfu")
+@Tag(name = "Manufacturating Unit API", description = "Manufacturing units are Industrial units deployed to manufacture plc devices.\n This API gives access to perform CRUD operations on these data")
+@SecurityRequirement(name = "Basic-auth")
 public class ManufacturingUnitController {
 	@Autowired
 	private ManufacturingUnitRepository manufacturingUnitRepository;
@@ -49,6 +54,7 @@ public class ManufacturingUnitController {
 		return new ResponseEntity<String>("ManufacturingUnit deleted", HttpStatus.OK);
 	}
 
+	@Hidden
 	@GetMapping("/{id}")
 	public ResponseEntity<ManufacturingUnit> getByid(@PathVariable Long id) {
 		return new ResponseEntity<ManufacturingUnit>(manufacturingUnitRepository.findById(id)

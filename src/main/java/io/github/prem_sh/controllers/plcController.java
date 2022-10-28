@@ -18,17 +18,22 @@ import org.springframework.web.bind.annotation.RestController;
 
 import io.github.prem_sh.models.Plc;
 import io.github.prem_sh.repository.PlcRepository;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.tags.Tag;
 
 @RestController
 @RequestMapping("/plc")
+@Tag(name = "PLC API", description = "CRUD operation on PLC information in database")
 public class plcController {
 	@Autowired PlcRepository plcRepository;
 
+	@SecurityRequirement(name="Basic-auth")
 	@PostMapping
 	public ResponseEntity<Plc> create(@RequestBody Plc plc) {
 		return new ResponseEntity<Plc>(plcRepository.save(plc), HttpStatus.OK);
 	}
 
+	@SecurityRequirement(name="Basic-auth")
 	@PutMapping("/{id}")
 	public ResponseEntity<Plc> update(@RequestBody Plc plc, @PathVariable Long id) {
 		Plc plcRef = plcRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("Plc model not found"));
@@ -38,6 +43,7 @@ public class plcController {
 		return new ResponseEntity<Plc>(plcRepository.save(plcRef), HttpStatus.OK);
 	}
 
+	@SecurityRequirement(name="Basic-auth")
 	@DeleteMapping("/{id}")
 	public ResponseEntity<String> delete(@PathVariable Long id) {
 		plcRepository.deleteById(id);
