@@ -45,34 +45,20 @@ public class DeviceController {
 	@Autowired
 	PlcRepository plcRepository;
 
-	@Operation(
-			summary = "Register new device", 
-			description = "A private api, used to create new divice in database. NOTE : After manufacturing of plc we should register the plc using this api otherwise buying and selling of the plc is illeagl.",
-			responses = {
-					@ApiResponse(
-							responseCode = "200",
-							description = "Success, device created and created device will be returned",
-							content = @Content(mediaType = "application/json", schema = @Schema(implementation = DeviceIdentity.class) )
-							),
-					@ApiResponse(
-							responseCode = "406",
-							description = "Not_Acceptable, Already have a device with same id",
-							content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorMessageDto.class))
-							)
-			}
-		)
+	@Operation(summary = "Register new device", description = "A private api, used to create new divice in database. NOTE : After manufacturing of plc we should register the plc using this api otherwise buying and selling of the plc is illeagl.", responses = {
+			@ApiResponse(responseCode = "200", description = "Success, device created and created device will be returned", content = @Content(mediaType = "application/json", schema = @Schema(implementation = DeviceIdentity.class))),
+			@ApiResponse(responseCode = "406", description = "Not_Acceptable, Already have a device with same id", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorMessageDto.class))) })
 	@SecurityRequirement(name = "Basic-auth")
 	@PostMapping
-	public ResponseEntity<DeviceIdentity> create(@Parameter(description = "Device object") @RequestBody DeviceIdentityInputDto deviceDetails) {
-		if(deviceRepository.findById(deviceDetails.getDeviceId()).isEmpty()) {
+	public ResponseEntity<DeviceIdentity> create(
+			@Parameter(description = "Device object") @RequestBody DeviceIdentityInputDto deviceDetails) {
+		if (deviceRepository.findById(deviceDetails.getDeviceId()).isEmpty()) {
 			DeviceIdentity device = new DeviceIdentity();
 			device.setDeviceId(deviceDetails.getDeviceId());
-			device.setManufacturingUnit(
-					manufacturingUnitRepository.findById(
-							deviceDetails.getManufacturingUnitId()
-							).orElseThrow(()-> new EntityNotFoundException("Manufacturing unit not found")));
-			device.setPlcModel(plcRepository.findById(deviceDetails.getPlcModelId()).orElseThrow(
-					()->new EntityNotFoundException("Plc model not found")));
+			device.setManufacturingUnit(manufacturingUnitRepository.findById(deviceDetails.getManufacturingUnitId())
+					.orElseThrow(() -> new EntityNotFoundException("Manufacturing unit not found")));
+			device.setPlcModel(plcRepository.findById(deviceDetails.getPlcModelId())
+					.orElseThrow(() -> new EntityNotFoundException("Plc model not found")));
 			try {
 				device.setMfd(new SimpleDateFormat("dd-MM-yyyy").parse(deviceDetails.getMfd()));
 			} catch (ParseException e) {
@@ -81,39 +67,26 @@ public class DeviceController {
 			device.setQualityCheck(deviceDetails.getQualityCheck());
 
 			return new ResponseEntity<DeviceIdentity>(deviceRepository.save(device), HttpStatus.OK);
-		}else throw new EntityExistsException("Device with same id already exist");
-		
+		} else
+			throw new EntityExistsException("Device with same id already exist");
+
 	}
 
-	@Operation(
-			summary = "Edit existing device", description = "Private Apin , Used to Update device details",
-			responses = {
-					@ApiResponse(
-							responseCode = "200",
-							description = "Success, Device details updated successfully",
-							content = @Content(mediaType = "application/json", schema = @Schema(implementation = DeviceIdentity.class))
-							),
-					@ApiResponse(
-							responseCode = "404",
-							description = "NotFound, Device with requested id not found",
-							content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorMessageDto.class))
-							)
-			}
-			)
+	@Operation(summary = "Edit existing device", description = "Private Api, Used to Update device details", responses = {
+			@ApiResponse(responseCode = "200", description = "Success, Device details updated successfully", content = @Content(mediaType = "application/json", schema = @Schema(implementation = DeviceIdentity.class))),
+			@ApiResponse(responseCode = "404", description = "NotFound, Device with requested id not found", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorMessageDto.class))) })
 	@SecurityRequirement(name = "Basic-auth")
 	@PutMapping("/{id}")
 	public ResponseEntity<DeviceIdentity> update(@RequestBody DeviceIdentityInputDto deviceDetails,
 			@Parameter(description = "Device id") @PathVariable String id) {
 		Optional<DeviceIdentity> opt = deviceRepository.findById(deviceDetails.getDeviceId());
-		if(!opt.isEmpty()) {
+		if (!opt.isEmpty()) {
 			DeviceIdentity device = opt.get();
 			device.setDeviceId(deviceDetails.getDeviceId());
-			device.setManufacturingUnit(
-					manufacturingUnitRepository.findById(
-							deviceDetails.getManufacturingUnitId()
-							).orElseThrow(()-> new EntityNotFoundException("Manufacturing unit not found")));
-			device.setPlcModel(plcRepository.findById(deviceDetails.getPlcModelId()).orElseThrow(
-					()->new EntityNotFoundException("Plc model not found")));
+			device.setManufacturingUnit(manufacturingUnitRepository.findById(deviceDetails.getManufacturingUnitId())
+					.orElseThrow(() -> new EntityNotFoundException("Manufacturing unit not found")));
+			device.setPlcModel(plcRepository.findById(deviceDetails.getPlcModelId())
+					.orElseThrow(() -> new EntityNotFoundException("Plc model not found")));
 			try {
 				device.setMfd(new SimpleDateFormat("dd-MM-yyyy").parse(deviceDetails.getMfd()));
 			} catch (ParseException e) {
@@ -122,12 +95,13 @@ public class DeviceController {
 			device.setQualityCheck(deviceDetails.getQualityCheck());
 
 			return new ResponseEntity<DeviceIdentity>(deviceRepository.save(device), HttpStatus.OK);
-		}else throw new EntityNotFoundException("Device not found");
+		} else
+			throw new EntityNotFoundException("Device not found");
 	}
 
-	@Operation(
-			summary = "Delete existing device"
-			)
+	@Operation(summary = "Edit existing device", description = "Private Api , Used to Delete device", responses = {
+			@ApiResponse(responseCode = "200", description = "Success, Device deleted successfuly", content = @Content(mediaType = "application/json", schema = @Schema(implementation = DeviceIdentity.class))),
+			@ApiResponse(responseCode = "404", description = "NotFound, Device with requested id not found", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorMessageDto.class))) })
 	@SecurityRequirement(name = "Basic-auth")
 	@DeleteMapping("/{id}")
 	public ResponseEntity<String> delete(@Parameter(description = "Device id") @PathVariable String id) {
@@ -135,14 +109,19 @@ public class DeviceController {
 		return new ResponseEntity<String>("DeviceIdentity deleted", HttpStatus.OK);
 	}
 
-	@Operation(summary = "Fetch device by id")
+	@Operation(summary = "Fetch device by id", description = "Used to get Device details", responses = {
+			@ApiResponse(responseCode = "200", description = "Success", content = @Content(mediaType = "application/json", schema = @Schema(implementation = DeviceIdentity.class))),
+			@ApiResponse(responseCode = "404", description = "NotFound, Device with requested id not found", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorMessageDto.class))) })
 	@GetMapping("/{id}")
 	public ResponseEntity<DeviceIdentity> getByid(@Parameter(description = "Device id") @PathVariable String id) {
-		return new ResponseEntity<DeviceIdentity>(deviceRepository.findById(id)
-				.orElseThrow(() -> new EntityNotFoundException("Device not found")), HttpStatus.OK);
+		return new ResponseEntity<DeviceIdentity>(
+				deviceRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("Device not found")),
+				HttpStatus.OK);
 	}
 
-	@Operation(summary = "Fetch all devices")
+	@Operation(summary = "Fetch all devices", description = "Used to get list of all Devices", responses = {
+			@ApiResponse(responseCode = "200", description = "Success", content = @Content(mediaType = "application/json", schema = @Schema(implementation = DeviceIdentity.class))
+			)})
 	@GetMapping
 	public ResponseEntity<List<DeviceIdentity>> getAll() {
 		return new ResponseEntity<List<DeviceIdentity>>(deviceRepository.findAll(), HttpStatus.OK);

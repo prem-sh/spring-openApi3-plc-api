@@ -16,9 +16,14 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import io.github.prem_sh.dto.ErrorMessageDto;
 import io.github.prem_sh.models.ManufacturingUnit;
 import io.github.prem_sh.repository.ManufacturingUnitRepository;
 import io.swagger.v3.oas.annotations.Hidden;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
@@ -30,6 +35,9 @@ public class ManufacturingUnitController {
 	@Autowired
 	private ManufacturingUnitRepository manufacturingUnitRepository;
 
+	@Operation(summary = "Create Manufacturing units", description = "A private api, used to create new Manufacturing unit in database", responses = {
+			@ApiResponse(responseCode = "200", description = "Success, Manufacturing Unit created and created object will be returned", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ManufacturingUnit.class)))})
+	@SecurityRequirement(name = "Basic-auth")
 	@PostMapping
 	public ResponseEntity<ManufacturingUnit> create(@RequestBody ManufacturingUnit manufacturingUnitRef) {
 		return new ResponseEntity<ManufacturingUnit>(manufacturingUnitRepository.save(manufacturingUnitRef),
@@ -37,6 +45,9 @@ public class ManufacturingUnitController {
 	}
 
 	@PutMapping("/{id}")
+	@Operation(summary = "Update Manufacturing units", description = "A private api, used to update manufacturing unit", responses = {
+			@ApiResponse(responseCode = "200", description = "Success, Manufacturing Unit created and created device will be returned", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ManufacturingUnit.class)))})
+	@SecurityRequirement(name = "Basic-auth")
 	public ResponseEntity<ManufacturingUnit> update(@RequestBody ManufacturingUnit manufacturingUnitRef,
 			@PathVariable Long id) {
 		ManufacturingUnit manufacturingUnitRefRef = manufacturingUnitRepository.findById(id)
@@ -49,6 +60,9 @@ public class ManufacturingUnitController {
 	}
 
 	@DeleteMapping("/{id}")
+	@Operation(summary = "Edit existing device", description = "Private Api, Used to Delete Manufacturing Unit", responses = {
+			@ApiResponse(responseCode = "200", description = "Success, Manufacturing Unit deleted successfuly", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ManufacturingUnit.class))),
+			@ApiResponse(responseCode = "404", description = "NotFound, Manufacturing Unit with requested id not found", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorMessageDto.class))) })
 	public ResponseEntity<String> delete(@PathVariable Long id) {
 		manufacturingUnitRepository.deleteById(id);
 		return new ResponseEntity<String>("ManufacturingUnit deleted", HttpStatus.OK);
@@ -61,6 +75,9 @@ public class ManufacturingUnitController {
 				.orElseThrow(() -> new EntityNotFoundException("ManufacturingUnit not found")), HttpStatus.OK);
 	}
 
+	@Operation(summary = "Fetch all Manufacturing Units", description = "Used to get", responses = {
+			@ApiResponse(responseCode = "200", description = "Success", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ManufacturingUnit.class))
+			)})
 	@GetMapping
 	public ResponseEntity<List<ManufacturingUnit>> getAll() {
 		return new ResponseEntity<List<ManufacturingUnit>>(manufacturingUnitRepository.findAll(), HttpStatus.OK);
